@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Product catalogs</title>
+  <link rel="shortcut icon" href="#">
+  <style>
+    table,
+    th,
+    td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      // update catalog
+      $(".update-catalog").click(function () {
+        var trid = $(this).closest('tr').attr('id');
+        $.ajax({
+          type: "POST",
+          async: false,
+          url: "/catalogs",
+          dataType: 'json',
+          data: {
+            id: $('#' + trid + ' input#id').val(),
+            name: $('#' + trid + ' input#name').val(),
+            description: $('#' + trid + ' input#description').val()
+          },
+          success: function (data, textStatus) {
+            console.log("Success", textStatus);
+          }
+        });
+      });
+
+      // delete catalog
+      $(".delete-catalog").click(function () {
+        var trid = $(this).closest('tr').attr('id');
+        $.ajax({
+          type: "DELETE",
+          async: false,
+          url: "/catalogs/" + $('#' + trid + ' input#id').val(),
+          success: function (data, textStatus) {
+            console.log("Success", textStatus);
+            location.reload();
+          }
+        });
+      });
+    });
+  </script>
+</head>
+
+<body>
+  <h1>Add new catalog</h1>
+  <!-- Add catalog -->
+  <form action="/catalogs" method="POST">
+    <input type="text" placeholder="Catalog name" name="name" />
+    <input type="text" placeholder="Catalog description" name="description" />
+    <button type="Add">Submit</button>
+  </form>
+  <h2> Catalogs </h2>
+  <table style="width:50%">
+    <tr>
+      <th>
+        CatalogId
+      </th>
+      <th>
+        CatalogName
+      </th>
+      <th>
+        CatalogDescription
+      </th>
+      <th>
+        Products
+      </th>
+      <th>
+        Action
+      </th>
+    </tr>
+    <% for(var i=0; i < catalogs.length; i++) {%>
+      <tr id="<%= catalogs[i].id %>">
+        <td>
+          <input id="id" type="text" style="width:250px" placeholder="Catalog id" disabled name="id"
+            value="<%= catalogs[i].id %>" />
+        </td>
+        <td>
+          <input id="name" type="text" placeholder="Catalog name" name="name" value="<%= catalogs[i].name %>" />
+        </td>
+        <td>
+          <input id="description" type="text" placeholder="Catalog description" name="description"
+            value="<%= catalogs[i].description %>" />
+        </td>>
+       
+        <td>
+          <a href="/products?catalogId=<%= catalogs[i].id %>&page=0">Products</a>
+        </td>
+        <td>
+          <span>
+            <button type="button" class="update-catalog">
+              Update
+            </button>
+          </span>
+          <span>
+            <button type="button" class="delete-catalog">
+              Delete
+            </button>
+          </span>
+        </td>
+      </tr>
+      <% } %>
+  </table>
+</body>
+
+</html>

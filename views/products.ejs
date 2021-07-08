@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Product catalogs</title>
+  <link rel="shortcut icon" href="#">
+  <style>
+    table,
+    th,
+    td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      // update product
+      $(".update-product").click(function () {
+        var trid = $(this).closest('tr').attr('id');
+        $.ajax({
+          type: "POST",
+          async: false,
+          url: "/products",
+          dataType: 'json',
+          data: {
+            id: $('#' + trid + ' input#id').val(),
+            catalogId: $('#' + trid + ' input#catalogId').val(),
+            name: $('#' + trid + ' input#name').val(),
+            description: $('#' + trid + ' input#description').val()
+          },
+          success: function (data, textStatus) {
+            console.log("Success", textStatus);
+          }
+        });
+      });
+
+      // delete product
+      $(".delete-product").click(function () {
+        var trid = $(this).closest('tr').attr('id');
+        $.ajax({
+          type: "DELETE",
+          async: false,
+          url: "/products/" + $('#' + trid + ' input#id').val(),
+          success: function (data, textStatus) {
+            console.log("Success", textStatus);
+            location.reload();
+          }
+        });
+      });
+    });
+  </script>
+</head>
+
+<body onload='setField()'>
+  <a href="/">Back to catalogs</a>
+  <h1>Add new product</h1>
+  <!-- Add product -->
+  <form action="/products" method="POST">
+    <input id="catalogId" name="catalogId" disabled>
+    <input type="text" placeholder="Product name" name="name" />
+    <input type="text" placeholder="Product description" name="description" />
+    <input type="submit" value="Add">
+  </form>
+  <h2> Products </h2>
+  <table style="width:70%">
+    <tr>
+      <th>
+        CatalogId
+      </th>
+      <th>
+        CatalogName
+      </th>
+      <th>
+        ProductId
+      </th>
+      <th>
+        ProductName
+      </th>
+      <th>
+        ProductDescription
+      </th>
+      <th>
+        Action
+      </th>
+    </tr>
+    <% for(var i=0; i < products.length; i++) {%>
+      <tr id="<%= products[i].id %>">
+        <td>
+          <input id="catalogId" type="text" style="width:250px" placeholder="Catalog id" disabled name="catalogId"
+            value="<%= products[i].catalog_id %>" />
+        </td>
+        <td>
+          <%= products[i].catalog_name %>
+        </td>
+        <td>
+          <input id="id" type="text" style="width:250px" placeholder="Product id" disabled name="id"
+            value="<%= products[i].id %>" />
+        </td>
+        <td>
+          <input id="name" type="text" placeholder="Product name" name="name" value="<%= products[i].name %>" />
+        </td>
+        <td>
+          <input id="description" type="text" placeholder="Product description" name="description"
+            value="<%= products[i].description %>" />
+        </td>>
+        <td>
+          <span>
+            <button type="button" class="update-product">
+              Update
+            </button>
+          </span>
+          <span>
+            <button type="button" class="delete-product">
+              Delete
+            </button>
+          </span>
+        </td>
+      </tr>
+      <% } %>
+  </table>
+  <button type="button" class="next" onclick="prev()">
+    Prev
+  </button>
+  <button type="button" class="next" onclick="next()">
+    Next
+  </button>
+
+  <script type='text/javascript'>
+  function next() {
+   
+    var qString = location.search;
+    const urlParams = new URLSearchParams(qString);
+    if(urlParams.has('page')){
+      
+      var current_pageNo = urlParams.get('page')
+      urlParams.set('page', parseInt(current_pageNo)+1)
+    }
+    else{
+      
+      urlParams.set('page', 0);
+     
+    }
+    window.location.href = 'http://localhost:3001/products?'+urlParams
+  }
+
+  function prev()  {
+    
+    var qString = location.search;
+    const urlParams = new URLSearchParams(qString);
+    if(urlParams.has('page')){
+      
+      var current_pageNo = urlParams.get('page')
+      if(current_pageNo != 0)
+        urlParams.set('page', parseInt(current_pageNo)-1)
+    }
+    else{
+      
+      urlParams.set('page', 0);
+     
+    }
+    window.location.href = 'http://localhost:3001/products?'+urlParams  
+  }
+
+    function setField() {
+      var qString = location.search;
+      const urlParams = new URLSearchParams(qString);
+      var catalogId = urlParams.get('catalogId');
+      if (catalogId) {
+        document.forms[0].catalogId.value = catalogId;
+      } else {
+        document.forms[0].catalogId.disabled = false;
+      }
+    }
+  </script>
+</body>
+
+</html>
